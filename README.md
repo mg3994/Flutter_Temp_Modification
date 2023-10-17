@@ -69,16 +69,20 @@ jobs:
         run: flutter pub global activate rename
 
       - name: Build Runner Build
-        if: ${{ github.event.inputs.build_runner_build }}
+        if: ${{ github.event.inputs.build_runner_build == true }}
         run: flutter packages pub run build_runner build --delete-conflicting-outputs
 
       - name: Change Splash
-        if: ${{ github.event.inputs.change_splash }}
+        if: ${{ github.event.inputs.change_splash == true }}
         run: flutter pub run flutter_native_splash:create
 
       - name: Generate Launcher Icons
-        if: ${{ github.event.inputs.generate_launcher_icons }}
+        if: ${{ github.event.inputs.generate_launcher_icons == true }}
         run: flutter pub run flutter_launcher_icons
+
+      - name: Generate i18n
+        if: ${{ github.event.inputs.i18n_generation == true }}
+        run: flutter gen-l10n
 
       - name: Change App Name
         if: ${{ github.event.inputs.custom_app_name != '' }}
@@ -88,13 +92,9 @@ jobs:
         if: ${{ github.event.inputs.custom-package-name != '' }}
         run: rename setBundleId --value "${{ github.event.inputs.custom-package-name }}"
 
-      - name: Generate i18n
-        if: ${{ github.event.inputs.i18n_generation }}
-        run: flutter gen-l10n
-
       - name: Generate AAB or APK
         run: |
-          if ${{ github.event.inputs.aab_generation }}; then
+          if ${{ github.event.inputs.aab_generation == true }}; then
             flutter build appbundle --release
             echo "artifact_path=build/app/outputs/bundle/release/app-release.aab" >> $GITHUB_ENV
           else
@@ -108,6 +108,7 @@ jobs:
           artifacts: ${{ env.artifact_path }}
           tag: v1.0.${{ github.run-number }}
           token: ${{ secrets.TOKEN }}
+
 
 
 ```
